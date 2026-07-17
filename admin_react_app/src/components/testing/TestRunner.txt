@@ -1,0 +1,319 @@
+// Test Runner Component for comprehensive application testing
+import React, { useState, useEffect } from 'react';
+import { userFlowTester, responsiveDesignTester, accessibilityTester } from '../../utils/testingUtils';
+import { Button, Card, Badge, LoadingSpinner } from '../common';
+
+const TestRunner = () => {
+  const [testResults, setTestResults] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [currentTest, setCurrentTest] = useState('');
+  const [testLogs, setTestLogs] = useState([]);
+
+  // Run all tests
+  const runAllTests = async () => {
+    setIsRunning(true);
+    setTestResults(null);
+    setTestLogs([]);
+    setCurrentTest('Initializing tests...');
+
+    try {
+      // Capture console logs for test display
+      const originalLog = console.log;
+      console.log = (...args) => {
+        setTestLogs(prev => [...prev, args.join(' ')]);
+        originalLog(...args);
+      };
+
+      setCurrentTest('Running user flow tests...');
+      const results = await userFlowTester.runAllTests();
+      
+      setCurrentTest('Running responsive design tests...');
+      responsiveDesignTester.testBreakpoints();
+      
+      setCurrentTest('Running accessibility tests...');
+      accessibilityTester.testKeyboardNavigation();
+      accessibilityTester.testColorContrast();
+
+      // Restore original console.log
+      console.log = originalLog;
+
+      setTestResults(results);
+      setCurrentTest('Tests completed!');
+    } catch (error) {
+      console.error('Test execution failed:', error);
+      setCurrentTest(`Test failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  // Run specific test suites
+  const runSuperAdminTests = async () => {
+    setIsRunning(true);
+    setCurrentTest('Running Super Admin tests...');
+    try {
+      await userFlowTester.testSuperAdminFlow();
+      setCurrentTest('Super Admin tests completed!');
+    } catch (error) {
+      setCurrentTest(`Super Admin tests failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const runAdminTests = async () => {
+    setIsRunning(true);
+    setCurrentTest('Running Admin tests...');
+    try {
+      await userFlowTester.testAdminFlow();
+      setCurrentTest('Admin tests completed!');
+    } catch (error) {
+      setCurrentTest(`Admin tests failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const runErrorHandlingTests = async () => {
+    setIsRunning(true);
+    setCurrentTest('Running error handling tests...');
+    try {
+      await userFlowTester.testErrorHandling();
+      setCurrentTest('Error handling tests completed!');
+    } catch (error) {
+      setCurrentTest(`Error handling tests failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const runPerformanceTests = async () => {
+    setIsRunning(true);
+    setCurrentTest('Running performance tests...');
+    try {
+      await userFlowTester.testPerformance();
+      setCurrentTest('Performance tests completed!');
+    } catch (error) {
+      setCurrentTest(`Performance tests failed: ${error.message}`);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Application Test Runner
+        </h1>
+        <p className="text-gray-600">
+          Comprehensive testing suite for the Parking Admin Dashboard
+        </p>
+      </div>
+
+      {/* Test Controls */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Test Controls</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Button
+            onClick={runAllTests}
+            disabled={isRunning}
+            variant="primary"
+            fullWidth
+          >
+            Run All Tests
+          </Button>
+          <Button
+            onClick={runSuperAdminTests}
+            disabled={isRunning}
+            variant="secondary"
+            fullWidth
+          >
+            Super Admin Tests
+          </Button>
+          <Button
+            onClick={runAdminTests}
+            disabled={isRunning}
+            variant="secondary"
+            fullWidth
+          >
+            Admin Tests
+          </Button>
+          <Button
+            onClick={runErrorHandlingTests}
+            disabled={isRunning}
+            variant="warning"
+            fullWidth
+          >
+            Error Handling Tests
+          </Button>
+          <Button
+            onClick={runPerformanceTests}
+            disabled={isRunning}
+            variant="success"
+            fullWidth
+          >
+            Performance Tests
+          </Button>
+          <Button
+            onClick={() => {
+              setTestResults(null);
+              setTestLogs([]);
+              setCurrentTest('');
+            }}
+            disabled={isRunning}
+            variant="outline"
+            fullWidth
+          >
+            Clear Results
+          </Button>
+        </div>
+      </Card>
+
+      {/* Current Test Status */}
+      {isRunning && (
+        <Card className="p-6">
+          <div className="flex items-center space-x-4">
+            <LoadingSpinner size="sm" />
+            <div>
+              <h3 className="font-semibold">Running Tests...</h3>
+              <p className="text-gray-600">{currentTest}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Test Results Summary */}
+      {testResults && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Test Results Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {testResults.totalTests}
+              </div>
+              <div className="text-sm text-gray-600">Total Tests</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {testResults.passedTests}
+              </div>
+              <div className="text-sm text-gray-600">Passed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-600">
+                {testResults.failedTests}
+              </div>
+              <div className="text-sm text-gray-600">Failed</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">
+                {testResults.passRate}%
+              </div>
+              <div className="text-sm text-gray-600">Pass Rate</div>
+            </div>
+          </div>
+
+          {/* Overall Status Badge */}
+          <div className="text-center mb-6">
+            <Badge
+              variant={testResults.passRate === 100 ? 'success' : testResults.passRate >= 80 ? 'warning' : 'danger'}
+              size="lg"
+            >
+              {testResults.passRate === 100 ? 'All Tests Passed' : 
+               testResults.passRate >= 80 ? 'Most Tests Passed' : 'Tests Need Attention'}
+            </Badge>
+          </div>
+        </Card>
+      )}
+
+      {/* Detailed Test Results */}
+      {testResults && testResults.results.length > 0 && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Detailed Test Results</h2>
+          <div className="space-y-2 max-h-96 overflow-y-auto">
+            {testResults.results.map((result, index) => (
+              <div
+                key={index}
+                className={`flex items-center justify-between p-3 rounded-lg ${
+                  result.passed ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <span className={`text-lg ${result.passed ? 'text-green-600' : 'text-red-600'}`}>
+                    {result.passed ? '✅' : '❌'}
+                  </span>
+                  <div>
+                    <div className="font-medium">{result.testName}</div>
+                    {result.details && (
+                      <div className="text-sm text-gray-600">{result.details}</div>
+                    )}
+                  </div>
+                </div>
+                <Badge variant={result.passed ? 'success' : 'danger'} size="sm">
+                  {result.passed ? 'PASS' : 'FAIL'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Test Logs */}
+      {testLogs.length > 0 && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Test Logs</h2>
+          <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm max-h-64 overflow-y-auto">
+            {testLogs.map((log, index) => (
+              <div key={index} className="mb-1">
+                {log}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Testing Guidelines */}
+      <Card className="p-6">
+        <h2 className="text-xl font-semibold mb-4">Testing Guidelines</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-semibold mb-2">User Flow Tests</h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Super Admin login and dashboard access</li>
+              <li>• Admin management functionality</li>
+              <li>• Regular Admin login with limited access</li>
+              <li>• Payment collection workflows</li>
+              <li>• Daily closure operations</li>
+              <li>• Vehicle check-in/check-out processes</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold mb-2">Technical Tests</h3>
+            <ul className="text-sm text-gray-600 space-y-1">
+              <li>• Error handling and recovery</li>
+              <li>• Performance benchmarks</li>
+              <li>• Responsive design validation</li>
+              <li>• Accessibility compliance</li>
+              <li>• API integration testing</li>
+              <li>• Data filtering and calculations</li>
+            </ul>
+          </div>
+        </div>
+      </Card>
+
+      {/* Mock Data Information */}
+      <Card className="p-6 bg-blue-50 border-blue-200">
+        <h2 className="text-xl font-semibold mb-4 text-blue-900">Mock Data Information</h2>
+        <div className="text-sm text-blue-800 space-y-2">
+          <p><strong>Super Admin:</strong> superadmin@parking.com / password123</p>
+          <p><strong>Admin (John Doe):</strong> john.doe@parking.com / password123</p>
+          <p><strong>Admin (Jane Smith):</strong> jane.smith@parking.com / password123</p>
+          <p><strong>Note:</strong> All tests use mock data and simulate real API responses with network delays.</p>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default TestRunner;

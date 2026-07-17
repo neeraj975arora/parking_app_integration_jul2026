@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxHeight="500dp"
+    android:fillViewport="true">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Price Filter Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Maximum Price"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvPriceValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₹100/hr"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="8dp" />
+
+    <SeekBar
+        android:id="@+id/seekBarPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="200"
+        android:progress="100"
+        android:progressTint="@color/green"
+        android:thumbTint="@color/green"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Distance Filter Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Maximum Distance"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvDistanceValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10.0 km"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="8dp" />
+
+    <SeekBar
+        android:id="@+id/seekBarDistance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="20"
+        android:progress="10"
+        android:progressTint="@color/green"
+        android:thumbTint="@color/green"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Availability Filter Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Availability Options"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:layout_marginBottom="8dp" />
+
+    <CheckBox
+        android:id="@+id/cbAvailableOnly"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show only available parking lots"
+        android:textSize="14sp"
+        android:buttonTint="@color/green"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Vehicle Type Filter Section -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vehicle Type"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/green"
+        android:layout_marginBottom="8dp" />
+
+    <CheckBox
+        android:id="@+id/cbCarSlots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Car parking available"
+        android:textSize="14sp"
+        android:buttonTint="@color/green"
+        android:layout_marginBottom="4dp" />
+
+    <CheckBox
+        android:id="@+id/cbTwoWheelerSlots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Two-wheeler parking available"
+        android:textSize="14sp"
+        android:buttonTint="@color/green"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnReset"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"
+            android:textColor="@color/green"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnApply"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apply Filters"
+            android:backgroundTint="@color/green" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
+</ScrollView>

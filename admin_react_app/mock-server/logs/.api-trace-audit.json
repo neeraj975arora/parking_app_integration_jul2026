@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.api-trace-audit.json",
+    "files": [
+        {
+            "date": 1755007157647,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/api-trace-2025-08-12.log",
+            "hash": "d09f84a96d52502795d099f1df350d6258aed84dbaaae4c05401cf85ca28089e"
+        },
+        {
+            "date": 1755071647687,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/api-trace-2025-08-13.log",
+            "hash": "5cacafed0ed4505b73dde87362287c41f3542b5b30b57950133694d2d4397173"
+        },
+        {
+            "date": 1755505710867,
+            "name": "/home/arashdeep.singh/test_1308/mock_server_new/logs/api-trace-2025-08-18.log",
+            "hash": "207d467018aa17f4741a30bc323068ca3fdaeea6423d48feb4d5c9190653f744"
+        },
+        {
+            "date": 1755508029630,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/api-trace-2025-08-18.log",
+            "hash": "e24128a960ca64c1b5adec442f465682540c6a2182bc6e455607f8a70ef3dbf4"
+        }
+    ],
+    "hashType": "sha256"
+}

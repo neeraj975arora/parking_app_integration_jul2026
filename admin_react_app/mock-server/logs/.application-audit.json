@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.application-audit.json",
+    "files": [
+        {
+            "date": 1755007157643,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/application-2025-08-12.log",
+            "hash": "46f684a865e7b346e4d64a36a18cdbf8741068799055dcaeddce87a4c2218360"
+        },
+        {
+            "date": 1755071647679,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/application-2025-08-13.log",
+            "hash": "d762a05ed7064b888a680b843485bbeb1cc607f8c60f9b4cc319f6522519d51e"
+        },
+        {
+            "date": 1755505710864,
+            "name": "/home/arashdeep.singh/test_1308/mock_server_new/logs/application-2025-08-18.log",
+            "hash": "8dc0fc01584fbfaf393be05360415b82d623b23af40620dc2b0b46368398b48e"
+        },
+        {
+            "date": 1755508029627,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/application-2025-08-18.log",
+            "hash": "4a65d648101dc93bcd041fdc43b7d988508afb7913c00bf033d0b0112eac8bc0"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -1,0 +1,38 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
+from flask_cors import CORS
+from flask_jwt_extended import JWTManager
+from .config import Config
+
+db = SQLAlchemy()
+ma = Marshmallow()
+
+def create_app(config_name='default'):
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    
+    db.init_app(app)
+    ma.init_app(app)
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+    JWTManager(app)
+    
+    # Register blueprints
+    from .auth import auth_bp
+    app.register_blueprint(auth_bp)
+    
+    from .api_v1 import api_v1_bp
+    app.register_blueprint(api_v1_bp)
+    
+    from .vehicles_api import vehicles_bp
+from .vehicles import vehicles_bp
+from .sessions import sessions_bp
+    app.register_blueprint(vehicles_bp)
+    
+
+    from .admin import admin_bp
+    app.register_blueprint(admin_bp)
+
+    from .parking import parking_bp
+    app.register_blueprint(parking_bp)
+    return app

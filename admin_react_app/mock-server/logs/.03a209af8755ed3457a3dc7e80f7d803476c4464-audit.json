@@ -1,0 +1,20 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.03a209af8755ed3457a3dc7e80f7d803476c4464-audit.json",
+    "files": [
+        {
+            "date": 1755006458072,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/application-2025-08-12.log",
+            "hash": "dd03cec8f0ed0be9e03aa416a48700942d3ccf9f62a004d089f2302e0b92d8f2"
+        },
+        {
+            "date": 1755071650192,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/application-2025-08-13.log",
+            "hash": "02ab4be8c5f1d684e8a05257939c50dce1dadc2165a286b0a6744b1a8d4bbbce"
+        }
+    ],
+    "hashType": "sha256"
+}

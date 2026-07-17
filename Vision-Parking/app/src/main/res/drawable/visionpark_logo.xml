@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    
+    <!-- White P shape with integrated car design -->
+    
+    <!-- Main P body -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M30,20 L45,20 L45,100 L30,100 Z"/>
+    
+    <!-- P upper section with car integration -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M30,20 L75,20 Q90,20 100,30 Q110,40 110,55 Q110,70 100,80 Q90,90 75,90 L60,90 Q50,90 45,85 L45,75 Q45,70 50,65 Q55,60 60,60 L75,60 Q85,60 90,55 Q95,50 90,45 Q85,40 75,40 L60,40 Q55,40 50,35 Q45,30 45,25 L45,20 L30,20 Z"/>
+    
+    <!-- Car silhouette (green areas inside the P) -->
+    <!-- Car body shape -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M50,35 Q60,28 75,28 Q90,28 98,38 Q105,48 105,58 Q105,68 98,78 Q90,88 75,88 Q60,88 50,78"/>
+    
+    <!-- Car profile detail -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M55,45 Q65,38 77,38 Q89,38 95,48 Q100,55 95,62 Q89,72 77,72 Q65,72 55,62"/>
+    
+    <!-- Tire (white circle representing wheel) -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M77,58 m-12,0 a12,12 0 1,1 24,0 a12,12 0 1,1 -24,0"/>
+    
+    <!-- Tire center/rim (green dot) -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M77,58 m-5,0 a5,5 0 1,1 10,0 a5,5 0 1,1 -10,0"/>
+    
+</vector>

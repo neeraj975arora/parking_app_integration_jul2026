@@ -1,0 +1,335 @@
+// Mock API Service for testing without backend implementation
+import { 
+  mockData, 
+  getSessionsForUser, 
+  getTotalParkingSlots, 
+  generatePaymentData,
+  generateActiveParticipants,
+  generateRecentActivity
+} from '../utils/mockData';
+
+class MockAPIService {
+  constructor() {
+    this.isEnabled = process.env.NODE_ENV === 'development' || process.env.VITE_USE_MOCK_API === 'true';
+    this.networkDelay = 500; // Simulate network delay
+  }
+
+  // Simulate network delays
+  async delay(ms = this.networkDelay) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Simulate random network failures (5% chance)
+  simulateNetworkFailure() {
+    if (Math.random() < 0.05) {
+      throw new Error('Network error: Unable to connect to server');
+    }
+  }
+
+  // Mock Authentication Endpoints
+  async login(credentials) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    const { user_email, user_password, role } = credentials;
+
+    // Super Admin Login
+    if (user_email === 'superadmin@parking.com' && user_password === 'password123' && role === 'super_admin') {
+      return {
+        access_token: 'mock-super-admin-token-' + Date.now(),
+        role: 'super_admin',
+        user_id: mockData.superAdmin.user_id,
+        username: mockData.superAdmin.username,
+        user_email: mockData.superAdmin.user_email,
+        user_phone_no: mockData.superAdmin.user_phone_no,
+        user_address: mockData.superAdmin.user_address
+      };
+    }
+
+    // Admin Login
+    if (user_email === 'john.doe@parking.com' && user_password === 'password123' && role === 'admin') {
+      const admin = mockData.admins[0]; // John Doe
+      return {
+        access_token: 'mock-admin-token-' + Date.now(),
+        role: 'admin',
+        user_id: admin.user_id,
+        username: admin.username,
+        user_email: admin.user_email,
+        user_phone_no: admin.user_phone_no,
+        user_address: admin.user_address,
+        assigned_lots: admin.assigned_lots
+      };
+    }
+
+    // Jane Smith Admin Login
+    if (user_email === 'jane.smith@parking.com' && user_password === 'password123' && role === 'admin') {
+      const admin = mockData.admins[1]; // Jane Smith
+      return {
+        access_token: 'mock-admin-token-' + Date.now(),
+        role: 'admin',
+        user_id: admin.user_id,
+        username: admin.username,
+        user_email: admin.user_email,
+        user_phone_no: admin.user_phone_no,
+        user_address: admin.user_address,
+        assigned_lots: admin.assigned_lots
+      };
+    }
+
+    // Invalid credentials
+    throw new Error('Invalid credentials');
+  }
+
+  // Mock Admin Management Endpoints
+  async getAllAdmins() {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    return {
+      status: 'success',
+      message: 'Successfully retrieved all admin lot assignments.',
+      data: mockData.adminList
+    };
+  }
+
+  async createAdmin(adminData) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    // Simulate validation
+    if (!adminData.name || !adminData.email || !adminData.password) {
+      throw new Error('Name, email, password, and assigned_lots are required.');
+    }
+
+    if (!adminData.assigned_lots || adminData.assigned_lots.length === 0) {
+      throw new Error('assigned_lots must be a non-empty array of parking lot IDs.');
+    }
+
+    // Check for duplicate email
+    const existingAdmin = mockData.adminList.find(admin => 
+      admin.admin_name.toLowerCase().includes(adminData.email.split('@')[0])
+    );
+    
+    if (existingAdmin) {
+      throw new Error('An admin with this email already exists.');
+    }
+
+    // Simulate successful creation
+    const newUserId = Math.max(...mockData.adminList.map(a => a.user_id)) + 1;
+    const newAdmin = {
+      user_id: newUserId,
+      admin_name: adminData.name,
+      assigned_lots: adminData.assigned_lots
+    };
+
+    // Add to mock data (in real app, this would be persisted)
+    mockData.adminList.push(newAdmin);
+
+    return {
+      message: 'Admin created successfully',
+      user_id: newUserId,
+      role: 'admin',
+      assigned_lots: adminData.assigned_lots
+    };
+  }
+
+  async deleteAdmin(userId) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    const adminIndex = mockData.adminList.findIndex(admin => admin.user_id === userId);
+    if (adminIndex === -1) {
+      throw new Error('Admin not found');
+    }
+
+    // Remove from mock data
+    mockData.adminList.splice(adminIndex, 1);
+
+    return {
+      message: 'Admin removed successfully'
+    };
+  }
+
+  // Mock Session Endpoints
+  async getAllSessionDetails() {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    return mockData.allSessions;
+  }
+
+  async getAdminSessionDetails(userId) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    // Find admin and get their assigned lots
+    const admin = mockData.admins.find(a => a.user_id === userId);
+    if (!admin) {
+      throw new Error('Admin not found');
+    }
+
+    // Filter sessions for admin's assigned lots
+    return mockData.allSessions.filter(session => 
+      admin.assigned_lots.includes(session.parkinglot_id)
+    );
+  }
+
+  async checkInVehicle(checkInData) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    // Simulate validation
+    if (!checkInData.vehicle_reg_no || !checkInData.slot_id || !checkInData.lot_id) {
+      throw new Error('Vehicle registration, slot ID, and lot ID are required');
+    }
+
+    // Create new session
+    const newSession = {
+      ticket_id: `TKT-${Date.now()}`,
+      parkinglot_id: checkInData.lot_id,
+      vehicle_reg_no: checkInData.vehicle_reg_no,
+      user_id: Math.floor(Math.random() * 1000) + 200,
+      start_time: new Date().toISOString(),
+      end_time: null,
+      duration_hrs: null,
+      vehicle_type: checkInData.vehicle_type.toLowerCase()
+    };
+
+    // Add to mock data
+    mockData.allSessions.unshift(newSession);
+
+    return {
+      message: 'Vehicle checked in successfully',
+      ticket_id: newSession.ticket_id
+    };
+  }
+
+  async checkOutVehicle(vehicleRegNo) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    // Find active session for vehicle
+    const sessionIndex = mockData.allSessions.findIndex(session => 
+      session.vehicle_reg_no === vehicleRegNo && session.end_time === null
+    );
+
+    if (sessionIndex === -1) {
+      throw new Error('Active session not found for this vehicle');
+    }
+
+    // Update session with end time and duration
+    const session = mockData.allSessions[sessionIndex];
+    const endTime = new Date();
+    const startTime = new Date(session.start_time);
+    const durationHrs = (endTime - startTime) / (1000 * 60 * 60);
+
+    mockData.allSessions[sessionIndex] = {
+      ...session,
+      end_time: endTime.toISOString(),
+      duration_hrs: Math.round(durationHrs * 100) / 100
+    };
+
+    return {
+      message: 'Vehicle checked out successfully',
+      duration_hrs: durationHrs
+    };
+  }
+
+  // Mock Closure Endpoints
+  async getDailyClosure() {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    return mockData.closureData;
+  }
+
+  async finalizeClosure(paymentData) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    const { payment_made } = paymentData;
+    const totalDue = mockData.closureData.outstanding_amount + mockData.closureData.today_collection;
+    const newOutstanding = Math.max(0, totalDue - payment_made);
+
+    // Update closure data
+    mockData.closureData = {
+      ...mockData.closureData,
+      amount_paid: payment_made,
+      new_outstanding: newOutstanding,
+      status: 'completed'
+    };
+
+    return {
+      new_outstanding: newOutstanding,
+      message: 'Closure finalized successfully'
+    };
+  }
+
+  // Mock Dashboard Data
+  async getDashboardData(user) {
+    await this.delay();
+    this.simulateNetworkFailure();
+
+    const sessions = getSessionsForUser(user);
+    const totalParkingSlots = getTotalParkingSlots(user);
+
+    return {
+      sessions,
+      totalParkingSlots,
+      chartData: mockData.chartData,
+      paymentData: generatePaymentData(sessions),
+      activeParticipants: generateActiveParticipants(sessions),
+      recentActivity: generateRecentActivity(sessions)
+    };
+  }
+
+  // Error Simulation Methods
+  async simulateError(type) {
+    await this.delay(200);
+    
+    switch(type) {
+      case 'network':
+        throw new Error('Network error: Unable to connect to server');
+      case 'auth':
+        throw new Error('Unauthorized: Invalid or expired token');
+      case 'server':
+        throw new Error('Internal server error: Please try again later');
+      case 'validation':
+        throw new Error('Validation error: Invalid input data');
+      case 'notfound':
+        throw new Error('Resource not found');
+      default:
+        throw new Error('Unknown error occurred');
+    }
+  }
+
+  // Test Data Reset (for testing purposes)
+  resetMockData() {
+    // Reset to original state - useful for testing
+    mockData.adminList = [
+      {
+        user_id: 2,
+        admin_name: 'John Doe',
+        assigned_lots: [1, 2]
+      },
+      {
+        user_id: 3,
+        admin_name: 'Jane Smith',
+        assigned_lots: [3, 4]
+      },
+      {
+        user_id: 4,
+        admin_name: 'Peter Jones',
+        assigned_lots: [5]
+      }
+    ];
+
+    mockData.closureData.status = 'pending';
+    mockData.closureData.amount_paid = 0;
+    mockData.closureData.new_outstanding = mockData.closureData.total_due;
+  }
+}
+
+// Export singleton instance
+export const mockApiService = new MockAPIService();
+export default mockApiService;

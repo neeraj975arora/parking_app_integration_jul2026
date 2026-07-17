@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary_green">#00B050</color>
+    <color name="primary_dark">#212121</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="green">#4CAF50</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="light_gray">#E0E0E0</color>
+    <color name="light_green">#C8E6C9</color>
+    <!-- Splash screen vibrant green background matching target design -->
+    <color name="splash_green">#00B050</color>
+    <!-- Primary color for the app -->
+    <color name="colorPrimary">#00B050</color>
+    <!-- Red color for exit/danger actions -->
+    <color name="red">#F44336</color>
+    
+    <!-- Additional colors for new activities -->
+    <color name="primary">#00B050</color>
+    <color name="background_light">#F5F5F5</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_on_white">#212121</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    
+    <!-- Status colors for availability -->
+    <color name="status_available">#4CAF50</color>
+    <color name="status_limited">#FF9800</color>
+    <color name="status_full">#F44336</color>
+</resources>

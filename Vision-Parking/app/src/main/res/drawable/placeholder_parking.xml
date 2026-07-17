@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    
+    <!-- Background -->
+    <path
+        android:fillColor="#E8F5E8"
+        android:pathData="M0,0h200v200h-200z" />
+    
+    <!-- Parking lot structure -->
+    <path
+        android:fillColor="#CCCCCC"
+        android:pathData="M20,60h160v120h-160z" />
+    
+    <!-- Parking spaces -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:pathData="M30,70h30v20h-30z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:pathData="M70,70h30v20h-30z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:pathData="M110,70h30v20h-30z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#999999"
+        android:strokeWidth="1"
+        android:pathData="M150,70h30v20h-30z" />
+    
+    <!-- Cars in some spaces -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M32,72h26v16h-26z" />
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M112,72h26v16h-26z" />
+    
+    <!-- Parking icon in center -->
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M85,120h30v30h-30z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M92,127h16v16h-16z" />
+    <path
+        android:fillColor="#4CAF50"
+        android:pathData="M95,130h4v10h-4z M101,130h4v10h-4z M95,135h10v2h-10z" />
+    
+</vector>

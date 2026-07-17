@@ -1,0 +1,286 @@
+from flask import Blueprint, request, jsonify, current_app
+from .models import Slot
+from . import db
+from .config import setup_logging
+import logging
+
+# Setup logging
+setup_logging()
+logger = logging.getLogger(__name__)
+logger.info("API v1 module initialized with centralized logging")
+
+api_v1_bp = Blueprint('api_v1', __name__, url_prefix='/api/v1')
+
+# Simple API Key Authentication
+def require_api_key(f):
+    def decorated_function(*args, **kwargs):
+        logger.debug(f"API key authentication check for endpoint: {f.__name__}")
+        api_key = request.headers.get('X-API-KEY')
+        if not api_key or api_key != current_app.config.get('RPI_API_KEY'):
+            logger.warning(f"Unauthorized API key access attempt from IP: {request.remote_addr}")
+            return jsonify({"error": "Unauthorized"}), 401
+        logger.info(f"API key authentication successful for endpoint: {f.__name__}")
+        return f(*args, **kwargs)
+    return decorated_function
+
+@api_v1_bp.route('/slots/update_status', methods=['POST'])
+@require_api_key
+def update_slot_status():
+    data = request.get_json()
+    logger.debug(f"POST /api/v1/slots/update_status called with data: {data}")
+    
+    slot_id = data.get('id')
+    new_status = data.get('status')
+
+    if not slot_id or new_status is None:
+        logger.warning(f"Missing required fields: slot_id={slot_id}, status={new_status}")
+        return jsonify({"error": "Missing id or status"}), 400
+
+    logger.debug(f"Looking up slot with ID: {slot_id}")
+    slot = db.session.get(Slot, slot_id)
+    if not slot:
+        logger.warning(f"Slot not found with ID: {slot_id}")
+        return jsonify({"error": "Slot not found"}), 404
+
+    try:
+        old_status = slot.status
+        slot.status = int(new_status)
+        db.session.commit()
+        logger.info(f"Slot {slot_id} status updated successfully from {old_status} to {new_status}")
+        return jsonify({"message": f"Slot {slot_id} status updated to {new_status}"})
+    except (ValueError, TypeError) as e:
+        logger.error(f"Invalid status value: {new_status}, error: {str(e)}")
+        return jsonify({"error": "Invalid status value"}), 400
+    except Exception as e:
+        db.session.rollback()
+        logger.exception(f"Failed to update slot status: {str(e)}")
+        return jsonify({"error": str(e)}), 500 
+
+@api_v1_bp.route('/parking/lots/nearby', methods=['GET'])
+def get_nearby_parking_lots():
+    """Get parking lots near a location"""
+    from flask import request, jsonify
+    
+    latitude = request.args.get('latitude', type=float)
+    longitude = request.args.get('longitude', type=float)
+    radius = request.args.get('radius', default=5000, type=int)
+    
+    print(f"Parking lots request: lat={latitude}, lng={longitude}, radius={radius}")
+    
+    parking_lots = [
+        # Connaught Place Area
+        {
+            "id": 1,
+            "name": "Connaught Place Parking - Block A",
+            "latitude": 28.6315,
+            "longitude": 77.2167,
+            "address": "Block A, Connaught Place, New Delhi",
+            "total_slots": 120,
+            "available_slots": 45,
+            "price_per_hour": 20,
+            "distance": 0.5
+        },
+        {
+            "id": 2,
+            "name": "Connaught Place Parking - Block B",
+            "latitude": 28.6320,
+            "longitude": 77.2175,
+            "address": "Block B, Connaught Place, New Delhi",
+            "total_slots": 100,
+            "available_slots": 35,
+            "price_per_hour": 20,
+            "distance": 0.6
+        },
+        {
+            "id": 3,
+            "name": "Connaught Place Parking - Block C",
+            "latitude": 28.6305,
+            "longitude": 77.2160,
+            "address": "Block C, Connaught Place, New Delhi",
+            "total_slots": 90,
+            "available_slots": 50,
+            "price_per_hour": 20,
+            "distance": 0.4
+        },
+        {
+            "id": 4,
+            "name": "India Gate Parking",
+            "latitude": 28.6129,
+            "longitude": 77.2295,
+            "address": "India Gate, New Delhi",
+            "total_slots": 80,
+            "available_slots": 20,
+            "price_per_hour": 15,
+            "distance": 1.2
+        },
+        {
+            "id": 5,
+            "name": "India Gate VIP Parking",
+            "latitude": 28.6135,
+            "longitude": 77.2300,
+            "address": "VIP Area, India Gate, New Delhi",
+            "total_slots": 40,
+            "available_slots": 10,
+            "price_per_hour": 30,
+            "distance": 1.3
+        },
+        {
+            "id": 6,
+            "name": "Rajiv Chowk Parking",
+            "latitude": 28.6304,
+            "longitude": 77.2204,
+            "address": "Rajiv Chowk, New Delhi",
+            "total_slots": 200,
+            "available_slots": 80,
+            "price_per_hour": 25,
+            "distance": 0.8
+        },
+        {
+            "id": 7,
+            "name": "Rajiv Chowk Metro Parking",
+            "latitude": 28.6295,
+            "longitude": 77.2195,
+            "address": "Metro Station, Rajiv Chowk, New Delhi",
+            "total_slots": 150,
+            "available_slots": 60,
+            "price_per_hour": 20,
+            "distance": 0.7
+        },
+        {
+            "id": 8,
+            "name": "Karol Bagh Market Parking",
+            "latitude": 28.6500,
+            "longitude": 77.1900,
+            "address": "Karol Bagh Market, New Delhi",
+            "total_slots": 100,
+            "available_slots": 40,
+            "price_per_hour": 15,
+            "distance": 2.5
+        },
+        {
+            "id": 9,
+            "name": "Karol Bagh Metro Parking",
+            "latitude": 28.6510,
+            "longitude": 77.1910,
+            "address": "Metro Station, Karol Bagh, New Delhi",
+            "total_slots": 80,
+            "available_slots": 30,
+            "price_per_hour": 15,
+            "distance": 2.6
+        },
+        {
+            "id": 10,
+            "name": "Pitampura Market Parking",
+            "latitude": 28.6900,
+            "longitude": 77.1500,
+            "address": "Pitampura Market, New Delhi",
+            "total_slots": 120,
+            "available_slots": 50,
+            "price_per_hour": 10,
+            "distance": 5.0
+        },
+        {
+            "id": 11,
+            "name": "Pitampura Metro Parking",
+            "latitude": 28.6910,
+            "longitude": 77.1510,
+            "address": "Metro Station, Pitampura, New Delhi",
+            "total_slots": 100,
+            "available_slots": 45,
+            "price_per_hour": 10,
+            "distance": 5.1
+        },
+        {
+            "id": 12,
+            "name": "Lajpat Nagar Parking",
+            "latitude": 28.5700,
+            "longitude": 77.2400,
+            "address": "Lajpat Nagar Market, New Delhi",
+            "total_slots": 90,
+            "available_slots": 35,
+            "price_per_hour": 15,
+            "distance": 3.5
+        },
+        {
+            "id": 13,
+            "name": "South Extension Parking",
+            "latitude": 28.5700,
+            "longitude": 77.2200,
+            "address": "South Extension, New Delhi",
+            "total_slots": 70,
+            "available_slots": 25,
+            "price_per_hour": 20,
+            "distance": 3.8
+        }
+    ]
+    
+    return jsonify({"success": True, "data": parking_lots, "count": len(parking_lots)})
+
+@api_v1_bp.route('/user/vehicles', methods=['POST'])
+def add_vehicle():
+    """Add a new vehicle for the authenticated user"""
+    from flask import request, jsonify
+    from .models import UserVehicle
+    from . import db
+    
+    data = request.get_json()
+    print(f"Add vehicle request: {data}")
+    
+    # For now, return success (will implement full logic later)
+    return jsonify({
+        "success": True,
+        "message": "Vehicle added successfully",
+        "vehicle_id": 1
+    }), 201
+
+@api_v1_bp.route('/user/vehicles', methods=['GET'])
+def get_vehicles():
+    """Get all vehicles for the authenticated user"""
+    from flask import jsonify
+    
+    # Sample vehicles data
+    vehicles = [
+        {
+            "id": 1,
+            "vehicle_number": "DL01AB1234",
+            "vehicle_type": "Car",
+            "vehicle_model": "Hyundai i20",
+            "vehicle_color": "White",
+            "is_default": True
+        }
+    ]
+    
+    return jsonify({
+        "success": True,
+        "data": vehicles,
+        "count": len(vehicles)
+    })
+
+@api_v1_bp.route('/user/vehicles/<int:vehicle_id>', methods=['DELETE'])
+def delete_vehicle(vehicle_id):
+    """Delete a vehicle"""
+    from flask import jsonify
+    
+    return jsonify({"success": True, "message": f"Vehicle {vehicle_id} deleted"})
+
+@api_v1_bp.route('/user/vehicles', methods=['POST'])
+def add_vehicle():
+    """Add a new vehicle for the authenticated user"""
+    from flask import request, jsonify
+    
+    data = request.get_json()
+    print(f"Add vehicle request: {data}")
+    
+    # Return the format that the Android app expects
+    return jsonify({
+        "success": True,
+        "message": "Vehicle added successfully",
+        "data": {
+            "id": 1,
+            "vehicle_number": data.get('vehicle_number', ''),
+            "vehicle_type": data.get('vehicle_type', ''),
+            "vehicle_model": data.get('vehicle_model', ''),
+            "vehicle_color": data.get('vehicle_color', ''),
+            "is_default": data.get('is_default', False)
+        }
+    }), 201

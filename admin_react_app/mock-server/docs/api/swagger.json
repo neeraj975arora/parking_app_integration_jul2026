@@ -1,0 +1,45 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Parking Admin Mock Server API",
+    "description": "Comprehensive REST API for the Parking Admin Dashboard Mock Server.\n\nThis API provides realistic endpoints for testing the Parking Admin Dashboard React application, including authentication, admin management, session management, and financial operations.\n\n## Features\n- JWT-based authentication with role-based access control\n- Comprehensive parking session management\n- Financial operations and daily closure management\n- Real-time monitoring and health checks\n- Extensive validation and error handling\n\n## Authentication\nAll protected endpoints require a valid JWT token in the Authorization header:\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\n## Rate Limiting\nAPI requests are limited to 1000 requests per 15-minute window per IP address.\n\n## Error Handling\nAll errors follow a consistent format with appropriate HTTP status codes and detailed error messages.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Parking Admin Team",
+      "email": "admin@parking.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api-staging.parking.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "https://api.parking.com",
+      "description": "Production server"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from the login endpoint.\n\nExample: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`"
+      }
+    }
+  }
+}

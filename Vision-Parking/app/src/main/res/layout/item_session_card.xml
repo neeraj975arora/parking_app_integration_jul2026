@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Session Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <!-- Session Status Badge -->
+            <TextView
+                android:id="@+id/tvSessionStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_status_active"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:text="ACTIVE"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                tools:text="ACTIVE" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <!-- Session ID -->
+            <TextView
+                android:id="@+id/tvSessionId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#TKT123456"
+                android:textSize="12sp"
+                android:textColor="@color/gray"
+                android:textStyle="bold"
+                tools:text="#TKT123456" />
+
+        </LinearLayout>
+
+        <!-- Parking Lot Information -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_location"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                app:tint="@color/green" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvParkingLotName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Central Plaza Parking"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    tools:text="Central Plaza Parking" />
+
+                <TextView
+                    android:id="@+id/tvParkingLotAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="123 Main Street, Downtown"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginTop="2dp"
+                    tools:text="123 Main Street, Downtown" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Vehicle Information -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_car"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="center_vertical"
+                app:tint="@color/green" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvVehicleInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="My Car (ABC-123)"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    tools:text="My Car (ABC-123)" />
+
+                <TextView
+                    android:id="@+id/tvSlotLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Floor 2, Row A, Slot 15"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:layout_marginTop="2dp"
+                    tools:text="Floor 2, Row A, Slot 15" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Session Time Information -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <!-- Start Time -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Time"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvStartTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10:30 AM"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="2dp"
+                    tools:text="10:30 AM" />
+
+            </LinearLayout>
+
+            <!-- Duration -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Duration"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvDuration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2h 15m"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="2dp"
+                    tools:text="2h 15m" />
+
+            </LinearLayout>
+
+            <!-- Cost -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvCostLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current Cost"
+                    android:textSize="12sp"
+                    android:textColor="@color/gray"
+                    android:textStyle="bold"
+                    tools:text="Current Cost" />
+
+                <TextView
+                    android:id="@+id/tvCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="€4.50"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/green"
+                    android:layout_marginTop="2dp"
+                    tools:text="€4.50" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Action Button (for active sessions) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnExitVehicle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exit Vehicle"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/red"
+            app:cornerRadius="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <!-- Past Session Details (for completed sessions) -->
+        <LinearLayout
+            android:id="@+id/layoutPastSessionDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Payment Status"
+                android:textSize="12sp"
+                android:textColor="@color/gray" />
+
+            <TextView
+                android:id="@+id/tvPaymentStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/green"
+                tools:text="Completed" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

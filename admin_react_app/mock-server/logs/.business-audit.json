@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 60
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.business-audit.json",
+    "files": [
+        {
+            "date": 1755007157659,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/business-2025-08-12.log",
+            "hash": "3b28932c94f13465af1a100c0ba63a618b90d5eb39845ca610cc4ba6cc2af30d"
+        },
+        {
+            "date": 1755071647695,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/business-2025-08-13.log",
+            "hash": "e1d9a679a8ce4ef634b6c60d2a0e14f1655121deb97702036273c3864d5cb884"
+        },
+        {
+            "date": 1755505710871,
+            "name": "/home/arashdeep.singh/test_1308/mock_server_new/logs/business-2025-08-18.log",
+            "hash": "9c5783c7a8d01cb311a082d7c54f8df2986e27213f437e7e7997c9c34d581255"
+        },
+        {
+            "date": 1755508029632,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/business-2025-08-18.log",
+            "hash": "d836f88f592003586dc51bdf1d0a644b690ed703689aeb223145c13ab181792b"
+        }
+    ],
+    "hashType": "sha256"
+}
