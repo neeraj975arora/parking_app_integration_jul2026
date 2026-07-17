@@ -1,0 +1,42 @@
+{
+  "name": "Smart Parking System",
+  "description": "Comprehensive smart parking management system with mobile apps, web dashboards, and AI-powered vehicle detection",
+  "version": "1.0.0",
+  "type": "monorepo",
+  "components": {
+    "android_app": {
+      "name": "Vision-Parking",
+      "path": "Vision-Parking/",
+      "type": "android",
+      "language": "java",
+      "description": "Android mobile app for end users to find and book parking spots"
+    },
+    "backend": {
+      "name": "Backend API",
+      "path": "Backend/",
+      "type": "flask",
+      "language": "python",
+      "description": "Flask-based REST API server with PostgreSQL database"
+    },
+    "admin_app": {
+      "name": "Admin React App",
+      "path": "admin_react_app/",
+      "type": "react",
+      "language": "javascript",
+      "description": "Web dashboard for parking lot administrators"
+    },
+    "ml_service": {
+      "name": "Parking-Server",
+      "path": "Parking-Server/",
+      "type": "flask",
+      "language": "python",
+      "description": "ML-powered service using YOLOv8 for vehicle detection"
+    }
+  },
+  "current_focus": {
+    "component": "android_app",
+    "feature": "vehicle-session-management",
+    "sections": ["4.4", "4.5", "4.6"],
+    "description": "Implementing parking lot discovery, vehicle selection, and session management"
+  }
+}

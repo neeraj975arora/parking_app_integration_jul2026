@@ -1,0 +1,1538 @@
+openapi: 3.0.3
+info:
+  title: Parking Admin Mock Server API
+  description: |
+    Comprehensive REST API for the Parking Admin Dashboard Mock Server.
+    
+    This API provides realistic endpoints for testing the Parking Admin Dashboard React application,
+    including authentication, admin management, session management, and financial operations.
+    
+    ## Features
+    - JWT-based authentication with role-based access control
+    - Comprehensive parking session management
+    - Financial operations and daily closure management
+    - Real-time monitoring and health checks
+    - Extensive validation and error handling
+    
+    ## Authentication
+    All protected endpoints require a valid JWT token in the Authorization header:
+    ```
+    Authorization: Bearer <your-jwt-token>
+    ```
+    
+    ## Rate Limiting
+    API requests are limited to 1000 requests per 15-minute window per IP address.
+    
+    ## Error Handling
+    All errors follow a consistent format with appropriate HTTP status codes and detailed error messages.
+  version: 1.0.0
+  contact:
+    name: Parking Admin Team
+    email: admin@parking.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3001
+    description: Development server
+  - url: https://api-staging.parking.com
+    description: Staging server
+  - url: https://api.parking.com
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+paths:
+  # Root endpoint
+  /:
+    get:
+      tags:
+        - General
+      summary: Get API information
+      description: Returns basic API information and available endpoints
+      security: []
+      responses:
+        '200':
+          description: API information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiInfo'
+
+  # Authentication endpoints
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Admin login
+      description: Authenticate admin user and return JWT token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              super_admin:
+                summary: Super Admin Login
+                value:
+                  user_email: "superadmin@parking.com"
+                  user_password: "SuperAdmin@123"
+                  role: "super_admin"
+              admin:
+                summary: Admin Login
+                value:
+                  user_email: "admin@parking.com"
+                  user_password: "Admin@123"
+                  role: "admin"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user profile
+      description: Retrieve the profile information of the currently authenticated user
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logout user
+      description: Invalidate the current JWT token and logout the user
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+
+  # Admin Management endpoints
+  /admin/assign_lot:
+    post:
+      tags:
+        - Admin Management
+      summary: Create admin with lot assignments
+      description: Create a new admin user and assign parking lots (Super Admin only)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAdminRequest'
+            example:
+              name: "John Doe"
+              email: "john.doe@parking.com"
+              password: "Admin@123"
+              assigned_lots: [1, 2, 3]
+              role: "admin"
+      responses:
+        '201':
+          description: Admin created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAdminResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /admins/admin_lots/all:
+    get:
+      tags:
+        - Admin Management
+      summary: Get all admin lot assignments
+      description: Retrieve all admin lot assignments (Super Admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Admin lot assignments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLotsResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+
+  /admin/admin_lots/{user_id}:
+    get:
+      tags:
+        - Admin Management
+      summary: Get admin lot assignments
+      description: Get parking lot assignments for a specific admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 2
+      responses:
+        '200':
+          description: Admin lot assignments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminLotAssignments'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # Session Management endpoints
+  /admin/sessions/details/all:
+    get:
+      tags:
+        - Session Management
+      summary: Get all session details
+      description: Retrieve all parking session details (Super Admin only)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2025-01-01"
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2025-01-31"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, cancelled, all]
+            default: all
+        - name: lot_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Session details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+
+  /admin/session/details/{user_id}:
+    get:
+      tags:
+        - Session Management
+      summary: Get admin session details
+      description: Get session details for a specific admin (filtered by assigned lots)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          example: 2
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, completed, cancelled, all]
+            default: all
+      responses:
+        '200':
+          description: Admin session details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionsResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /admin/session/checkin:
+    post:
+      tags:
+        - Session Management
+      summary: Check in a vehicle
+      description: Check in a vehicle to start a parking session
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckinRequest'
+            example:
+              vehicle_reg_no: "DL01AB1234"
+              slot_id: 15
+              lot_id: 1
+              vehicle_type: "car"
+      responses:
+        '201':
+          description: Vehicle checked in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckinResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+
+  /admin/session/checkout:
+    post:
+      tags:
+        - Session Management
+      summary: Check out a vehicle
+      description: Check out a vehicle and process payment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutRequest'
+            example:
+              ticket_id: "TKT-20250121-001"
+              payment_method: "digital"
+              amount_paid: 125.0
+      responses:
+        '200':
+          description: Vehicle checked out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckoutResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # Financial Management endpoints
+  /admin/total_due:
+    get:
+      tags:
+        - Financial Management
+      summary: Get total due amounts
+      description: Get outstanding and today's collection amounts for admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: admin_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2025-01-21"
+      responses:
+        '200':
+          description: Total due amounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalDueResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+
+  /admin/finalize_closure:
+    post:
+      tags:
+        - Financial Management
+      summary: Finalize daily closure
+      description: Finalize admin payment settlement for daily closure
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeClosureRequest'
+            example:
+              closure_id: "CLS-20250121"
+              amount_paid: 5000.0
+              payment_method: "digital"
+              notes: "Regular closure, no issues"
+      responses:
+        '200':
+          description: Closure finalized successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinalizeClosureResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /admin/closure:
+    get:
+      tags:
+        - Financial Management
+      summary: Get daily closure data
+      description: Retrieve daily closure data for admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          example: "2025-01-21"
+        - name: admin_id
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Closure data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClosureResponse'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    post:
+      tags:
+        - Financial Management
+      summary: Create or update closure record
+      description: Create or update daily closure record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClosureRequest'
+            example:
+              date: "2025-01-21"
+              admin_id: 2
+              parkinglot_ids: [1, 2, 3]
+              opening_balance: 1500.0
+              today_collection: 4250.0
+              amount_paid: 5000.0
+      responses:
+        '201':
+          description: Closure record created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateClosureResponse'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/AuthenticationError'
+        '403':
+          $ref: '#/components/responses/AuthorizationError'
+
+  # Health and Monitoring endpoints
+  /health:
+    get:
+      tags:
+        - Health & Monitoring
+      summary: Basic health check
+      description: Get basic server health status
+      security: []
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Server is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/detailed:
+    get:
+      tags:
+        - Health & Monitoring
+      summary: Detailed health check
+      description: Get comprehensive server health status
+      security: []
+      responses:
+        '200':
+          description: Detailed health information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+
+  /metrics:
+    get:
+      tags:
+        - Health & Monitoring
+      summary: Get server metrics
+      description: Get server performance and business metrics
+      security: []
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, prometheus]
+            default: json
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+            text/plain:
+              schema:
+                type: string
+                description: Prometheus format metrics
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from the login endpoint.
+        
+        Example: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
+
+  schemas:
+    # General schemas
+    ApiInfo:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Parking Admin Mock Server API"
+        version:
+          type: string
+          example: "1.0.0"
+        status:
+          type: string
+          example: "running"
+        environment:
+          type: string
+          example: "development"
+        timestamp:
+          type: string
+          format: date-time
+        availableRoutes:
+          type: object
+          description: Available API endpoints grouped by category
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Operation completed successfully"
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          description: Error message
+        errorCode:
+          type: string
+          description: Specific error code
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+          description: Additional error details
+
+    ValidationErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            details:
+              type: object
+              properties:
+                errors:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        type: string
+                      message:
+                        type: string
+                      value:
+                        type: string
+
+    # Authentication schemas
+    LoginRequest:
+      type: object
+      required:
+        - user_email
+        - user_password
+        - role
+      properties:
+        user_email:
+          type: string
+          format: email
+          example: "admin@parking.com"
+        user_password:
+          type: string
+          format: password
+          example: "Admin@123"
+        role:
+          type: string
+          enum: [super_admin, admin]
+          example: "admin"
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        expires_in:
+          type: integer
+          example: 86400
+          description: Token expiration time in seconds
+
+    UserProfile:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        username:
+          type: string
+          example: "John Doe"
+        user_email:
+          type: string
+          format: email
+          example: "john.doe@parking.com"
+        role:
+          type: string
+          enum: [super_admin, admin, user]
+          example: "admin"
+        user_phone_no:
+          type: string
+          example: "+91-9876543211"
+        user_address:
+          type: string
+          example: "Delhi Office"
+        assigned_lots:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+        created_at:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean
+          example: true
+
+    # Admin Management schemas
+    CreateAdminRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - assigned_lots
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@parking.com"
+        password:
+          type: string
+          minLength: 8
+          pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]'
+          example: "Admin@123"
+        assigned_lots:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          minItems: 1
+          maxItems: 10
+          example: [1, 2, 3]
+        role:
+          type: string
+          enum: [admin]
+          default: admin
+        phone_number:
+          type: string
+          pattern: '^(\+91[-\s]?)?[0]?(91)?[6789]\d{9}$'
+          example: "+91-9876543211"
+        address:
+          type: string
+          minLength: 10
+          maxLength: 500
+          example: "Delhi Office"
+
+    CreateAdminResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Admin created successfully"
+        user_id:
+          type: integer
+          example: 16
+        role:
+          type: string
+          example: "admin"
+        assigned_lots:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+        timestamp:
+          type: string
+          format: date-time
+
+    AdminLotsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          example: "success"
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 2
+              admin_name:
+                type: string
+                example: "John Doe"
+              assigned_lots:
+                type: array
+                items:
+                  type: integer
+                example: [1, 2, 3]
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    AdminLotAssignments:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        user_id:
+          type: integer
+          example: 2
+        admin_name:
+          type: string
+          example: "John Doe"
+        assigned_lots:
+          type: array
+          items:
+            type: object
+            properties:
+              lot_id:
+                type: integer
+                example: 1
+              name:
+                type: string
+                example: "Central Plaza Parking"
+              address:
+                type: string
+                example: "Connaught Place, New Delhi"
+              total_slots:
+                type: integer
+                example: 80
+
+    # Session Management schemas
+    CheckinRequest:
+      type: object
+      required:
+        - vehicle_reg_no
+        - slot_id
+        - lot_id
+        - vehicle_type
+      properties:
+        vehicle_reg_no:
+          type: string
+          pattern: '^[A-Z]{2}[0-9]{1,2}[A-Z]{1,2}[0-9]{1,4}$'
+          example: "DL01AB1234"
+        slot_id:
+          type: integer
+          minimum: 1
+          example: 15
+        lot_id:
+          type: integer
+          minimum: 1
+          example: 1
+        vehicle_type:
+          type: string
+          enum: [car, motorcycle]
+          example: "car"
+        user_id:
+          type: integer
+          minimum: 1
+          example: 101
+        notes:
+          type: string
+          maxLength: 1000
+          example: "Regular customer"
+
+    CheckinResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Vehicle checked in successfully"
+        ticket_id:
+          type: string
+          example: "TKT-20250121-001"
+        session:
+          $ref: '#/components/schemas/ParkingSession'
+
+    CheckoutRequest:
+      type: object
+      required:
+        - ticket_id
+        - payment_method
+      properties:
+        ticket_id:
+          type: string
+          pattern: '^TKT-\d{8}-\d{3}$'
+          example: "TKT-20250121-001"
+        payment_method:
+          type: string
+          enum: [cash, digital, card]
+          example: "digital"
+        amount_paid:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 999999.99
+          example: 125.0
+        notes:
+          type: string
+          maxLength: 1000
+          example: "Payment completed"
+
+    CheckoutResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Vehicle checked out successfully"
+        session:
+          $ref: '#/components/schemas/ParkingSession'
+        payment:
+          $ref: '#/components/schemas/Payment'
+
+    ParkingSession:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+          example: "TKT-20250121-001"
+        parkinglot_id:
+          type: integer
+          example: 1
+        vehicle_reg_no:
+          type: string
+          example: "DL01AB1234"
+        user_id:
+          type: integer
+          example: 101
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        duration_hrs:
+          type: number
+          format: float
+          nullable: true
+          example: 2.5
+        vehicle_type:
+          type: string
+          enum: [car, motorcycle]
+          example: "car"
+        slot_number:
+          type: string
+          example: "A-15"
+        payment_status:
+          type: string
+          enum: [pending, completed, failed]
+          example: "completed"
+        amount_due:
+          type: number
+          format: float
+          example: 125.0
+        amount_paid:
+          type: number
+          format: float
+          example: 125.0
+        payment_method:
+          type: string
+          enum: [cash, digital, card]
+          example: "digital"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SessionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParkingSession'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+        filters:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            status:
+              type: string
+            lot_id:
+              type: integer
+
+    # Financial Management schemas
+    TotalDueResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        admin_id:
+          type: integer
+          example: 2
+        date:
+          type: string
+          format: date
+          example: "2025-01-21"
+        opening_balance:
+          type: number
+          format: float
+          example: 1500.0
+        today_collection:
+          type: number
+          format: float
+          example: 4250.0
+        total_due:
+          type: number
+          format: float
+          example: 5750.0
+        currency:
+          type: string
+          example: "INR"
+
+    FinalizeClosureRequest:
+      type: object
+      required:
+        - closure_id
+        - amount_paid
+        - payment_method
+      properties:
+        closure_id:
+          type: string
+          pattern: '^CLS-\d{8}$'
+          example: "CLS-20250121"
+        amount_paid:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 999999.99
+          example: 5000.0
+        payment_method:
+          type: string
+          enum: [cash, digital, card]
+          example: "digital"
+        notes:
+          type: string
+          maxLength: 1000
+          example: "Regular closure, no issues"
+
+    FinalizeClosureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Closure finalized successfully"
+        closure:
+          $ref: '#/components/schemas/DailyClosure'
+
+    CreateClosureRequest:
+      type: object
+      required:
+        - date
+        - admin_id
+        - parkinglot_ids
+        - opening_balance
+        - today_collection
+        - amount_paid
+      properties:
+        date:
+          type: string
+          format: date
+          example: "2025-01-21"
+        admin_id:
+          type: integer
+          minimum: 1
+          example: 2
+        parkinglot_ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          minItems: 1
+          maxItems: 10
+          example: [1, 2, 3]
+        opening_balance:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 999999.99
+          example: 1500.0
+        today_collection:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 999999.99
+          example: 4250.0
+        amount_paid:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 999999.99
+          example: 5000.0
+        notes:
+          type: string
+          maxLength: 1000
+          example: "Regular closure, no issues"
+
+    CreateClosureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Closure record created successfully"
+        closure:
+          $ref: '#/components/schemas/DailyClosure'
+
+    ClosureResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        closure:
+          $ref: '#/components/schemas/DailyClosure'
+
+    DailyClosure:
+      type: object
+      properties:
+        closure_id:
+          type: string
+          example: "CLS-20250121"
+        date:
+          type: string
+          format: date
+          example: "2025-01-21"
+        admin_id:
+          type: integer
+          example: 2
+        parkinglot_ids:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+        opening_balance:
+          type: number
+          format: float
+          example: 1500.0
+        today_collection:
+          type: number
+          format: float
+          example: 4250.0
+        total_due:
+          type: number
+          format: float
+          example: 5750.0
+        amount_paid:
+          type: number
+          format: float
+          example: 5000.0
+        new_outstanding:
+          type: number
+          format: float
+          example: 750.0
+        total_sessions:
+          type: integer
+          example: 45
+        completed_sessions:
+          type: integer
+          example: 42
+        pending_sessions:
+          type: integer
+          example: 3
+        status:
+          type: string
+          enum: [pending, completed]
+          example: "completed"
+        created_at:
+          type: string
+          format: date-time
+        finalized_at:
+          type: string
+          format: date-time
+          nullable: true
+        notes:
+          type: string
+          example: "Regular closure, no issues"
+
+    Payment:
+      type: object
+      properties:
+        payment_id:
+          type: string
+          example: "PAY-20250121-001"
+        session_id:
+          type: string
+          example: "TKT-20250121-001"
+        user_id:
+          type: integer
+          example: 101
+        amount:
+          type: number
+          format: float
+          example: 125.0
+        currency:
+          type: string
+          example: "INR"
+        status:
+          type: string
+          enum: [pending, completed, failed, refunded]
+          example: "completed"
+        payment_method:
+          type: string
+          enum: [cash, digital, card]
+          example: "digital"
+        transaction_id:
+          type: string
+          example: "TXN-1234567890"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Health and Monitoring schemas
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: number
+          example: 3600.5
+        environment:
+          type: string
+          example: "development"
+
+    DetailedHealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+        checkDuration:
+          type: number
+          example: 45.2
+        checks:
+          type: object
+          properties:
+            server:
+              type: object
+            fileSystem:
+              type: object
+            memory:
+              type: object
+            cpu:
+              type: object
+            dataStore:
+              type: object
+
+    MetricsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        timestamp:
+          type: string
+          format: date-time
+        requests:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 1250
+            byMethod:
+              type: object
+            byEndpoint:
+              type: object
+            byStatus:
+              type: object
+        errors:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 15
+            byType:
+              type: object
+            critical:
+              type: integer
+              example: 2
+        business:
+          type: object
+          properties:
+            activeSessions:
+              type: integer
+              example: 25
+            totalRevenue:
+              type: number
+              format: float
+              example: 125000.50
+            dailyRevenue:
+              type: number
+              format: float
+              example: 4250.0
+        system:
+          type: object
+          properties:
+            uptime:
+              type: number
+              example: 3600.5
+            memory:
+              type: object
+            cpu:
+              type: object
+
+    # Utility schemas
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 150
+        totalPages:
+          type: integer
+          example: 8
+        hasNext:
+          type: boolean
+          example: true
+        hasPrev:
+          type: boolean
+          example: false
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          example:
+            success: false
+            error: "Validation failed"
+            errorCode: "VALIDATION_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+            details:
+              errors:
+                - field: "user_email"
+                  message: "Please provide a valid email address"
+                  value: "invalid-email"
+
+    AuthenticationError:
+      description: Authentication error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Invalid or expired token"
+            errorCode: "AUTHENTICATION_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+
+    AuthorizationError:
+      description: Authorization error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Insufficient permissions for this operation"
+            errorCode: "AUTHORIZATION_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+            details:
+              requiredRole: "super_admin"
+              currentRole: "admin"
+
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Resource not found"
+            errorCode: "NOT_FOUND_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+
+    ConflictError:
+      description: Conflict error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Email address is already registered"
+            errorCode: "CONFLICT_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+
+    RateLimitError:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            error: "Too many requests from this IP, please try again later"
+            errorCode: "RATE_LIMIT_ERROR"
+            timestamp: "2025-01-21T10:30:00Z"
+            details:
+              retryAfter: 900
+
+tags:
+  - name: General
+    description: General API information and utilities
+  - name: Authentication
+    description: User authentication and authorization
+  - name: Admin Management
+    description: Admin user management and lot assignments
+  - name: Session Management
+    description: Parking session management and operations
+  - name: Financial Management
+    description: Financial operations and daily closure management
+  - name: Health & Monitoring
+    description: Server health checks and performance monitoring

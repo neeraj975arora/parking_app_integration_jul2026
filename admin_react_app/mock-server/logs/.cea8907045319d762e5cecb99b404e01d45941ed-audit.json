@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.cea8907045319d762e5cecb99b404e01d45941ed-audit.json",
+    "files": [
+        {
+            "date": 1755006458076,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/error-2025-08-12.log",
+            "hash": "47464bc408281ea54a43fdda29ddcaa4a61a1fc01649a736da65b50a6b8c2f20"
+        }
+    ],
+    "hashType": "sha256"
+}

@@ -1,0 +1,297 @@
+// Comprehensive mock data for testing without backend
+export const mockData = {
+  // Super Admin User
+  superAdmin: {
+    user_id: 1,
+    username: 'Super Admin',
+    user_email: 'superadmin@parking.com',
+    role: 'super_admin',
+    user_phone_no: '9876543210',
+    user_address: 'HQ Office, New Delhi'
+  },
+
+  // Regular Admin Users
+  admins: [
+    {
+      user_id: 2,
+      username: 'John Doe',
+      user_email: 'john.doe@parking.com',
+      role: 'admin',
+      user_phone_no: '9876543211',
+      user_address: 'Delhi Office',
+      assigned_lots: [1, 2]
+    },
+    {
+      user_id: 3,
+      username: 'Jane Smith',
+      user_email: 'jane.smith@parking.com',
+      role: 'admin',
+      user_phone_no: '9876543212',
+      user_address: 'Mumbai Office',
+      assigned_lots: [3, 4]
+    }
+  ],
+
+  // Admin List for Admin Management
+  adminList: [
+    {
+      user_id: 2,
+      admin_name: 'John Doe',
+      assigned_lots: [1, 2]
+    },
+    {
+      user_id: 3,
+      admin_name: 'Jane Smith',
+      assigned_lots: [3, 4]
+    },
+    {
+      user_id: 4,
+      admin_name: 'Peter Jones',
+      assigned_lots: [5]
+    }
+  ],
+
+  // Comprehensive Session Data
+  allSessions: [
+    // Active Sessions (end_time is null)
+    {
+      ticket_id: 'TKT-001',
+      parkinglot_id: 1,
+      vehicle_reg_no: 'DL01AB1234',
+      user_id: 101,
+      start_time: '2025-01-08T10:00:00Z',
+      end_time: null,
+      duration_hrs: null,
+      vehicle_type: 'car'
+    },
+    {
+      ticket_id: 'TKT-002',
+      parkinglot_id: 2,
+      vehicle_reg_no: 'DL02CD5678',
+      user_id: 102,
+      start_time: '2025-01-08T11:30:00Z',
+      end_time: null,
+      duration_hrs: null,
+      vehicle_type: 'motorcycle'
+    },
+    {
+      ticket_id: 'TKT-003',
+      parkinglot_id: 3,
+      vehicle_reg_no: 'MH01EF9012',
+      user_id: 103,
+      start_time: '2025-01-08T09:15:00Z',
+      end_time: null,
+      duration_hrs: null,
+      vehicle_type: 'car'
+    },
+
+    // Completed Sessions (end_time is not null)
+    {
+      ticket_id: 'TKT-004',
+      parkinglot_id: 1,
+      vehicle_reg_no: 'DL03GH3456',
+      user_id: 104,
+      start_time: '2025-01-08T08:00:00Z',
+      end_time: '2025-01-08T10:00:00Z',
+      duration_hrs: 2.0,
+      vehicle_type: 'car'
+    },
+    {
+      ticket_id: 'TKT-005',
+      parkinglot_id: 2,
+      vehicle_reg_no: 'KA01IJ7890',
+      user_id: 105,
+      start_time: '2025-01-08T07:30:00Z',
+      end_time: '2025-01-08T09:45:00Z',
+      duration_hrs: 2.25,
+      vehicle_type: 'motorcycle'
+    },
+    {
+      ticket_id: 'TKT-006',
+      parkinglot_id: 3,
+      vehicle_reg_no: 'TN01KL2345',
+      user_id: 106,
+      start_time: '2025-01-08T06:00:00Z',
+      end_time: '2025-01-08T08:30:00Z',
+      duration_hrs: 2.5,
+      vehicle_type: 'car'
+    },
+    {
+      ticket_id: 'TKT-007',
+      parkinglot_id: 4,
+      vehicle_reg_no: 'UP01MN6789',
+      user_id: 107,
+      start_time: '2025-01-07T14:00:00Z',
+      end_time: '2025-01-07T18:00:00Z',
+      duration_hrs: 4.0,
+      vehicle_type: 'car'
+    },
+    {
+      ticket_id: 'TKT-008',
+      parkinglot_id: 5,
+      vehicle_reg_no: 'RJ01OP0123',
+      user_id: 108,
+      start_time: '2025-01-07T12:00:00Z',
+      end_time: '2025-01-07T15:30:00Z',
+      duration_hrs: 3.5,
+      vehicle_type: 'motorcycle'
+    },
+    {
+      ticket_id: 'TKT-009',
+      parkinglot_id: 1,
+      vehicle_reg_no: 'HR01QR4567',
+      user_id: 109,
+      start_time: '2025-01-07T10:00:00Z',
+      end_time: '2025-01-07T13:00:00Z',
+      duration_hrs: 3.0,
+      vehicle_type: 'car'
+    },
+    {
+      ticket_id: 'TKT-010',
+      parkinglot_id: 2,
+      vehicle_reg_no: 'PB01ST8901',
+      user_id: 110,
+      start_time: '2025-01-07T09:00:00Z',
+      end_time: '2025-01-07T11:30:00Z',
+      duration_hrs: 2.5,
+      vehicle_type: 'motorcycle'
+    }
+  ],
+
+  // Parking Lot Information
+  parkingLots: [
+    { id: 1, name: 'Parking Lot P1', total_slots: 50, location: 'Connaught Place' },
+    { id: 2, name: 'Parking Lot P2', total_slots: 30, location: 'Khan Market' },
+    { id: 3, name: 'Parking Lot P3', total_slots: 40, location: 'Karol Bagh' },
+    { id: 4, name: 'Parking Lot P4', total_slots: 25, location: 'Lajpat Nagar' },
+    { id: 5, name: 'Parking Lot P5', total_slots: 35, location: 'Saket' }
+  ],
+
+  // Daily Closure Data
+  closureData: {
+    date: '2025-01-08',
+    outstanding_amount: 5450.75,
+    today_collection: 3210.50,
+    total_due: 8661.25,
+    amount_paid: 0,
+    new_outstanding: 8661.25,
+    status: 'pending'
+  },
+
+  // Chart Data for Revenue Overview
+  chartData: [
+    { month: 'Nov 2024', revenue: 45000, date: '2024-11-01' },
+    { month: 'Dec 2024', revenue: 52000, date: '2024-12-01' },
+    { month: 'Jan 2025', revenue: 48000, date: '2025-01-01' }
+  ]
+};
+
+// Helper functions to filter data based on user role
+export const getSessionsForUser = (user) => {
+  if (user.role === 'super_admin') {
+    return mockData.allSessions;
+  } else if (user.role === 'admin') {
+    // Filter sessions for admin's assigned lots only
+    return mockData.allSessions.filter(session => 
+      user.assigned_lots?.includes(session.parkinglot_id)
+    );
+  }
+  return [];
+};
+
+export const getTotalParkingSlots = (user) => {
+  if (user.role === 'super_admin') {
+    return mockData.parkingLots.reduce((total, lot) => total + lot.total_slots, 0);
+  } else if (user.role === 'admin') {
+    return mockData.parkingLots
+      .filter(lot => user.assigned_lots?.includes(lot.id))
+      .reduce((total, lot) => total + lot.total_slots, 0);
+  }
+  return 0;
+};
+
+// Generate realistic payment data from sessions
+export const generatePaymentData = (sessions) => {
+  return sessions
+    .filter(session => session.end_time !== null) // Only completed sessions
+    .map(session => {
+      const baseRate = session.vehicle_type === 'car' ? 50 : 30;
+      const amount = session.duration_hrs * baseRate;
+      
+      return {
+        payment_id: `PAY-${session.ticket_id.split('-')[1]}`,
+        vehicle_reg_no: session.vehicle_reg_no,
+        amount: amount,
+        date: session.end_time.split('T')[0],
+        duration: `${Math.floor(session.duration_hrs)}h ${Math.round((session.duration_hrs % 1) * 60)}m`,
+        status: 'COMPLETED',
+        session_id: session.ticket_id
+      };
+    });
+};
+
+// Generate active participants data
+export const generateActiveParticipants = (sessions) => {
+  return sessions
+    .filter(session => session.end_time === null) // Only active sessions
+    .map((session, index) => {
+      const names = ['John Doe', 'Sarah Miller', 'Robert Wilson', 'Lisa Brown', 'Mike Johnson', 'Emma Davis', 'David Lee', 'Anna Taylor'];
+      const startTime = new Date(session.start_time);
+      const now = new Date();
+      const durationMs = now - startTime;
+      const hours = Math.floor(durationMs / (1000 * 60 * 60));
+      const minutes = Math.floor((durationMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      return {
+        id: session.ticket_id,
+        name: names[index % names.length],
+        vehicle: session.vehicle_reg_no,
+        lot: `P${session.parkinglot_id}`,
+        duration: `${hours}h ${minutes}m`,
+        avatar: names[index % names.length].split(' ').map(n => n[0]).join('')
+      };
+    });
+};
+
+// Generate recent activity data
+export const generateRecentActivity = (sessions) => {
+  const activities = [];
+  const now = new Date();
+  
+  // Add some recent check-ins and check-outs
+  sessions.slice(0, 5).forEach((session, index) => {
+    const minutesAgo = (index + 1) * 3;
+    const timeAgo = `${minutesAgo} minutes ago`;
+    
+    if (session.end_time === null) {
+      activities.push({
+        id: `activity-${session.ticket_id}`,
+        type: 'checkin',
+        message: `New participant joined (Vehicle: ${session.vehicle_reg_no})`,
+        time: timeAgo,
+        icon: 'plus'
+      });
+    } else {
+      activities.push({
+        id: `activity-${session.ticket_id}`,
+        type: 'checkout',
+        message: `Participant left (Vehicle: ${session.vehicle_reg_no})`,
+        time: timeAgo,
+        icon: 'minus'
+      });
+      
+      // Add payment activity
+      const baseRate = session.vehicle_type === 'car' ? 50 : 30;
+      const amount = session.duration_hrs * baseRate;
+      activities.push({
+        id: `payment-${session.ticket_id}`,
+        type: 'payment',
+        message: `Payment received from ${session.vehicle_reg_no} (₹${amount})`,
+        time: `${minutesAgo + 1} minutes ago`,
+        icon: 'dollar'
+      });
+    }
+  });
+  
+  return activities.sort((a, b) => parseInt(a.time) - parseInt(b.time));
+};

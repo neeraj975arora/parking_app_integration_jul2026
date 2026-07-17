@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom style for Google Places Autocomplete -->
+    <style name="CustomPlacesAutocompleteTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryVariant">@color/green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/green</item>
+        <item name="colorSecondaryVariant">@color/green</item>
+        <item name="colorOnSecondary">@color/white</item>
+    </style>
+</resources> 

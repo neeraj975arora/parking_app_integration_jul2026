@@ -1,0 +1,2 @@
+{"category":"system","environment":"development","level":"info","message":"Starting log cleanup process","service":"parking-mock-server","timestamp":"2025-08-14 18:05:13.032","version":"1.0.0"}
+{"environment":"development","level":"info","message":"SIGTERM received, shutting down gracefully","service":"parking-mock-server","timestamp":"2025-08-14 20:13:31.046","version":"1.0.0"}

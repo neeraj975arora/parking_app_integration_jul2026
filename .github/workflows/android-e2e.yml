@@ -1,0 +1,193 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: '17'
+  PYTHON_VERSION: '3.12'
+  API_LEVEL: '28'
+  APP_PACKAGE: 'com.example.visionpark'
+
+jobs:
+  # ────────────────────────────────────────────────────────────
+  # JOB 1: Unit tests + APK build (fast, no emulator needed)
+  # ────────────────────────────────────────────────────────────
+  build-and-unit-tests:
+    name: Build & Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Inject Maps API key
+        run: |
+          echo "MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}" \
+            > Vision-Parking/local.properties
+
+      - name: Make gradlew executable
+        run: chmod +x Vision-Parking/gradlew
+
+      - name: Run unit tests
+        working-directory: Vision-Parking
+        run: ./gradlew test --no-daemon
+
+      - name: Build debug APK
+        working-directory: Vision-Parking
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug-apk
+          path: Vision-Parking/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 1
+
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: Vision-Parking/app/build/reports/tests/
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────
+  # JOB 2: E2E tests on emulator (separate job, longer timeout)
+  # ────────────────────────────────────────────────────────────
+  e2e-tests:
+    name: E2E Tests on Emulator
+    runs-on: ubuntu-latest
+    needs: build-and-unit-tests
+    # Emulator E2E is slow (~up to 60 min) — only run on manual trigger to keep push/PR runs fast
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r Vision-Parking/tests/requirements.txt
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: >-
+            platform-tools
+            system-images;android-${{ env.API_LEVEL }};google_apis;x86_64
+            build-tools;28.0.3
+
+      - name: Cache Android AVD
+        id: avd-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ env.API_LEVEL }}-google_apis-x86_64-v1
+
+      - name: Create AVD if not cached
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        run: |
+          echo "no" | avdmanager create avd \
+            -n test-emulator \
+            -k "system-images;android-${{ env.API_LEVEL }};google_apis;x86_64" \
+            --force
+
+      - name: Download APK from previous job
+        uses: actions/download-artifact@v4
+        with:
+          name: app-debug-apk
+          path: Vision-Parking/app/build/outputs/apk/debug/
+
+      - name: Start backend
+        working-directory: Backend
+        run: |
+          docker compose down -v 2>/dev/null || true
+          docker compose up -d
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5000/health > /dev/null 2>&1; then
+              echo "Backend ready"; break
+            fi
+            sleep 5
+          done
+
+      - name: Seed database
+        working-directory: Backend
+        run: |
+          for i in $(seq 1 20); do
+            if docker compose exec -T db pg_isready -U parking_user 2>/dev/null; then
+              break
+            fi
+            sleep 3
+          done
+          docker cp COMPLETE_DATABASE_SETUP_FIXED.sql \
+            "$(docker compose ps -q db)":/setup.sql
+          docker compose exec -T db \
+            psql -U parking_user -d parking_db -f /setup.sql
+
+      - name: Make scripts executable
+        run: |
+          chmod +x Vision-Parking/run_e2e.sh
+          chmod +x Vision-Parking/ci_emulator_setup.sh
+
+      - name: Run E2E tests on emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        env:
+          APP_PACKAGE: ${{ env.APP_PACKAGE }}
+        with:
+          api-level: ${{ env.API_LEVEL }}
+          target: google_apis
+          arch: x86_64
+          profile: Nexus 5
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: >-
+            -no-window -no-audio -no-boot-anim
+            -no-snapshot -wipe-data
+            -gpu swiftshader_indirect
+            -camera-back none -camera-front none
+          disable-animations: false
+          script: bash Vision-Parking/ci_emulator_setup.sh
+
+      - name: Upload E2E report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report
+          path: Vision-Parking/tests/report.html
+          retention-days: 7
+
+      - name: Upload Appium log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: appium-log
+          path: /tmp/appium.log
+          retention-days: 7
+
+      - name: Stop backend
+        if: always()
+        working-directory: Backend
+        run: docker compose down -v

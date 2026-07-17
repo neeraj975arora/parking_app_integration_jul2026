@@ -1,0 +1,45 @@
+{
+  "workspace": {
+    "root": ".",
+    "active_component": "Vision-Parking",
+    "preferred_editor": "android_studio"
+  },
+  "build_systems": {
+    "android": {
+      "gradle_wrapper": "Vision-Parking/gradlew",
+      "build_variants": ["debug", "release"],
+      "target_sdk": 35,
+      "min_sdk": 24
+    },
+    "backend": {
+      "docker_compose": "Backend/docker-compose.yml",
+      "python_version": "3.11",
+      "framework": "flask"
+    },
+    "admin_app": {
+      "package_manager": "npm",
+      "build_tool": "vite",
+      "framework": "react"
+    }
+  },
+  "testing": {
+    "android": {
+      "unit_tests": "Vision-Parking/app/src/test/",
+      "integration_tests": "Vision-Parking/tests/",
+      "framework": "junit"
+    },
+    "backend": {
+      "test_framework": "pytest",
+      "test_directory": "Backend/tests/",
+      "coverage_enabled": true
+    }
+  },
+  "api_integration": {
+    "base_urls": {
+      "development": "http://localhost:5000",
+      "staging": "https://api-staging.visionpark.com",
+      "production": "https://api.visionpark.com"
+    },
+    "current_environment": "development"
+  }
+}

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Book a Parking Slot"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/green"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Parking Lot -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Parking Lot"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp" />
+
+        <Spinner
+            android:id="@+id/spinnerParkingLot"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_status_completed"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Vehicle -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Vehicle"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp" />
+
+        <Spinner
+            android:id="@+id/spinnerVehicle"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Date -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:layout_marginBottom="6dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPickDate"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Select Date"
+            android:textColor="@color/black"
+            app:strokeColor="@color/gray"
+            app:cornerRadius="8dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Time Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start Time"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="6dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickStartTime"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="10:00 AM"
+                    android:textColor="@color/black"
+                    app:strokeColor="@color/gray"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End Time"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="6dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickEndTime"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="01:00 PM"
+                    android:textColor="@color/black"
+                    app:strokeColor="@color/gray"
+                    app:cornerRadius="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Availability Info -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAvailability"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="#E8F5E9"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvAvailableSlots"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="120 slots available"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/green" />
+
+                    <TextView
+                        android:id="@+id/tvEstimatedCost"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Estimated: Rs.60"
+                        android:textSize="13sp"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCheckAvailability"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Check"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/green"
+                    app:cornerRadius="6dp"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Check Availability Button (shown before checking) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckAvailabilityMain"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Check Availability"
+            android:textColor="@color/green"
+            app:strokeColor="@color/green"
+            app:cornerRadius="8dp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Confirm Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConfirmBooking"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="Confirm Booking"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/green"
+            app:cornerRadius="8dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:enabled="false"
+            android:alpha="0.6" />
+
+    </LinearLayout>
+</ScrollView>

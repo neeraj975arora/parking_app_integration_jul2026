@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    container_name: fastapi_app
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://parking_user:parking_password@db:5432/parking_db
+      - SECRET_KEY=my-super-secret-key-that-is-not-safe
+      - JWT_SECRET_KEY=my-super-secret-key-that-is-not-safe
+      - RPI_API_KEY=super-secret-rpi-key
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    command: ["uvicorn", "fastapi_app.main:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "1"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  db:
+    image: postgres:17
+    container_name: postgres_db
+    environment:
+      - POSTGRES_DB=parking_db
+      - POSTGRES_USER=parking_user
+      - POSTGRES_PASSWORD=parking_password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parking_user -d parking_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - backend
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx_server
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - backend
+    depends_on:
+      - app
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local

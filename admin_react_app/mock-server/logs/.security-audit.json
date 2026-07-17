@@ -1,0 +1,30 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 90
+    },
+    "auditLog": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/.security-audit.json",
+    "files": [
+        {
+            "date": 1755007157657,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/security-2025-08-12.log",
+            "hash": "0bd8b268bcc03d4f5130293772104b55cfed0d574518cdf2c9d53ffb3e5dde12"
+        },
+        {
+            "date": 1755071647694,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/security-2025-08-13.log",
+            "hash": "5d2329f8722e9e8e59f25b388789935bd8670bd675d09bee7fbd756761e6c960"
+        },
+        {
+            "date": 1755505710869,
+            "name": "/home/arashdeep.singh/test_1308/mock_server_new/logs/security-2025-08-18.log",
+            "hash": "5e513c658cacb851d2a46ab146c5ba815ea0b57f86736df09d0ff3a37517865c"
+        },
+        {
+            "date": 1755508029631,
+            "name": "/home/arashdeep.singh/admin_app_base_docs_new/mock-server/logs/security-2025-08-18.log",
+            "hash": "7ed1b480faf1a6113d11c1e435e094b7fbf1887e146f5b3cda9cf0ecd86cd7fb"
+        }
+    ],
+    "hashType": "sha256"
+}

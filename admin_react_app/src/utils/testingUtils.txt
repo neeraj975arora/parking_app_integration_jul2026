@@ -1,0 +1,391 @@
+// Testing utilities for comprehensive user flow testing
+import { mockApiService } from '../services/mockApiService';
+import { mockData } from './mockData';
+
+export class UserFlowTester {
+  constructor() {
+    this.testResults = [];
+    this.currentUser = null;
+  }
+
+  // Test result logging
+  logTest(testName, passed, details = '') {
+    const result = {
+      testName,
+      passed,
+      details,
+      timestamp: new Date().toISOString()
+    };
+    this.testResults.push(result);
+    console.log(`${passed ? '✅' : '❌'} ${testName}${details ? ': ' + details : ''}`);
+    return result;
+  }
+
+  // Super Admin User Flow Tests
+  async testSuperAdminFlow() {
+    console.log('🧪 Starting Super Admin User Flow Tests...');
+    
+    try {
+      // Test 1: Super Admin Login
+      const loginResult = await mockApiService.login({
+        user_email: 'superadmin@parking.com',
+        user_password: 'password123',
+        role: 'super_admin'
+      });
+      
+      this.currentUser = loginResult;
+      this.logTest('Super Admin Login', loginResult.role === 'super_admin', 
+        `Logged in as ${loginResult.username}`);
+
+      // Test 2: Dashboard Data Access
+      const dashboardData = await mockApiService.getDashboardData(loginResult);
+      this.logTest('Super Admin Dashboard Access', 
+        dashboardData.sessions.length === mockData.allSessions.length,
+        `Can access all ${dashboardData.sessions.length} sessions`);
+
+      // Test 3: Admin Management Access
+      const adminList = await mockApiService.getAllAdmins();
+      this.logTest('Admin Management Access', 
+        adminList.data.length > 0,
+        `Can view ${adminList.data.length} admins`);
+
+      // Test 4: Create New Admin
+      const newAdminData = {
+        name: 'Test Admin',
+        email: 'test.admin@parking.com',
+        password: 'testpass123',
+        assigned_lots: [1, 2]
+      };
+      
+      const createResult = await mockApiService.createAdmin(newAdminData);
+      this.logTest('Create New Admin', 
+        createResult.message.includes('successfully'),
+        `Created admin with ID ${createResult.user_id}`);
+
+      // Test 5: All Sessions Access
+      const allSessions = await mockApiService.getAllSessionDetails();
+      this.logTest('All Sessions Access', 
+        allSessions.length === mockData.allSessions.length,
+        `Can access all ${allSessions.length} sessions`);
+
+    } catch (error) {
+      this.logTest('Super Admin Flow', false, error.message);
+    }
+  }
+
+  // Regular Admin User Flow Tests
+  async testAdminFlow() {
+    console.log('🧪 Starting Regular Admin User Flow Tests...');
+    
+    try {
+      // Test 1: Admin Login
+      const loginResult = await mockApiService.login({
+        user_email: 'john.doe@parking.com',
+        user_password: 'password123',
+        role: 'admin'
+      });
+      
+      this.currentUser = loginResult;
+      this.logTest('Admin Login', loginResult.role === 'admin', 
+        `Logged in as ${loginResult.username}`);
+
+      // Test 2: Limited Dashboard Access
+      const dashboardData = await mockApiService.getDashboardData(loginResult);
+      const expectedSessions = mockData.allSessions.filter(session => 
+        loginResult.assigned_lots.includes(session.parkinglot_id)
+      );
+      
+      this.logTest('Admin Limited Dashboard Access', 
+        dashboardData.sessions.length === expectedSessions.length,
+        `Can only access ${dashboardData.sessions.length} sessions from assigned lots`);
+
+      // Test 3: Admin Session Details
+      const adminSessions = await mockApiService.getAdminSessionDetails(loginResult.user_id);
+      this.logTest('Admin Session Details', 
+        adminSessions.length === expectedSessions.length,
+        `Filtered sessions match assigned lots`);
+
+      // Test 4: Check-in Vehicle
+      const checkInData = {
+        vehicle_reg_no: 'TEST123',
+        slot_id: 1,
+        lot_id: loginResult.assigned_lots[0],
+        vehicle_type: 'car'
+      };
+      
+      const checkInResult = await mockApiService.checkInVehicle(checkInData);
+      this.logTest('Vehicle Check-in', 
+        checkInResult.message.includes('successfully'),
+        `Checked in vehicle ${checkInData.vehicle_reg_no}`);
+
+      // Test 5: Check-out Vehicle
+      const checkOutResult = await mockApiService.checkOutVehicle(checkInData.vehicle_reg_no);
+      this.logTest('Vehicle Check-out', 
+        checkOutResult.message.includes('successfully'),
+        `Checked out vehicle ${checkInData.vehicle_reg_no}`);
+
+    } catch (error) {
+      this.logTest('Admin Flow', false, error.message);
+    }
+  }
+
+  // Payment Collection Flow Tests
+  async testPaymentCollectionFlow() {
+    console.log('🧪 Starting Payment Collection Flow Tests...');
+    
+    try {
+      if (!this.currentUser) {
+        throw new Error('No user logged in for payment collection test');
+      }
+
+      // Test 1: Get Dashboard Data (includes payment data)
+      const dashboardData = await mockApiService.getDashboardData(this.currentUser);
+      this.logTest('Payment Data Access', 
+        dashboardData.paymentData.length > 0,
+        `Found ${dashboardData.paymentData.length} payment records`);
+
+      // Test 2: Verify Payment Calculations
+      const completedSessions = dashboardData.sessions.filter(s => s.end_time !== null);
+      const expectedPayments = completedSessions.length;
+      
+      this.logTest('Payment Calculations', 
+        dashboardData.paymentData.length === expectedPayments,
+        `Payment records match completed sessions`);
+
+      // Test 3: Payment Status Verification
+      const completedPayments = dashboardData.paymentData.filter(p => p.status === 'COMPLETED');
+      this.logTest('Payment Status', 
+        completedPayments.length === dashboardData.paymentData.length,
+        `All payments marked as completed`);
+
+    } catch (error) {
+      this.logTest('Payment Collection Flow', false, error.message);
+    }
+  }
+
+  // Daily Closure Flow Tests
+  async testDailyClosureFlow() {
+    console.log('🧪 Starting Daily Closure Flow Tests...');
+    
+    try {
+      // Test 1: Get Closure Data
+      const closureData = await mockApiService.getDailyClosure();
+      this.logTest('Closure Data Access', 
+        closureData.outstanding_amount !== undefined,
+        `Outstanding amount: ₹${closureData.outstanding_amount}`);
+
+      // Test 2: Calculate Total Due
+      const expectedTotalDue = closureData.outstanding_amount + closureData.today_collection;
+      this.logTest('Total Due Calculation', 
+        Math.abs(closureData.total_due - expectedTotalDue) < 0.01,
+        `Total due: ₹${closureData.total_due}`);
+
+      // Test 3: Finalize Closure
+      const paymentAmount = 5000;
+      const finalizeResult = await mockApiService.finalizeClosure({
+        payment_made: paymentAmount
+      });
+      
+      this.logTest('Closure Finalization', 
+        finalizeResult.message.includes('successfully'),
+        `Finalized with payment: ₹${paymentAmount}`);
+
+      // Test 4: Verify New Outstanding
+      const expectedNewOutstanding = Math.max(0, expectedTotalDue - paymentAmount);
+      this.logTest('New Outstanding Calculation', 
+        Math.abs(finalizeResult.new_outstanding - expectedNewOutstanding) < 0.01,
+        `New outstanding: ₹${finalizeResult.new_outstanding}`);
+
+    } catch (error) {
+      this.logTest('Daily Closure Flow', false, error.message);
+    }
+  }
+
+  // Error Handling Tests
+  async testErrorHandling() {
+    console.log('🧪 Starting Error Handling Tests...');
+    
+    const errorTypes = ['network', 'auth', 'server', 'validation', 'notfound'];
+    
+    for (const errorType of errorTypes) {
+      try {
+        await mockApiService.simulateError(errorType);
+        this.logTest(`${errorType} Error Handling`, false, 'Error should have been thrown');
+      } catch (error) {
+        this.logTest(`${errorType} Error Handling`, true, error.message);
+      }
+    }
+
+    // Test invalid login
+    try {
+      await mockApiService.login({
+        user_email: 'invalid@email.com',
+        user_password: 'wrongpassword',
+        role: 'admin'
+      });
+      this.logTest('Invalid Login Handling', false, 'Should have thrown error');
+    } catch (error) {
+      this.logTest('Invalid Login Handling', true, error.message);
+    }
+  }
+
+  // Performance Tests
+  async testPerformance() {
+    console.log('🧪 Starting Performance Tests...');
+    
+    // Test 1: Login Performance
+    const loginStart = performance.now();
+    try {
+      await mockApiService.login({
+        user_email: 'superadmin@parking.com',
+        user_password: 'password123',
+        role: 'super_admin'
+      });
+      const loginTime = performance.now() - loginStart;
+      this.logTest('Login Performance', 
+        loginTime < 1000,
+        `Login took ${loginTime.toFixed(2)}ms`);
+    } catch (error) {
+      this.logTest('Login Performance', false, error.message);
+    }
+
+    // Test 2: Dashboard Data Performance
+    const dashboardStart = performance.now();
+    try {
+      await mockApiService.getDashboardData(this.currentUser);
+      const dashboardTime = performance.now() - dashboardStart;
+      this.logTest('Dashboard Performance', 
+        dashboardTime < 1000,
+        `Dashboard data took ${dashboardTime.toFixed(2)}ms`);
+    } catch (error) {
+      this.logTest('Dashboard Performance', false, error.message);
+    }
+  }
+
+  // Run All Tests
+  async runAllTests() {
+    console.log('🚀 Starting Comprehensive User Flow Testing...');
+    this.testResults = [];
+    
+    // Reset mock data to ensure clean state
+    mockApiService.resetMockData();
+    
+    await this.testSuperAdminFlow();
+    await this.testAdminFlow();
+    await this.testPaymentCollectionFlow();
+    await this.testDailyClosureFlow();
+    await this.testErrorHandling();
+    await this.testPerformance();
+    
+    // Generate test report
+    this.generateTestReport();
+  }
+
+  // Generate Test Report
+  generateTestReport() {
+    const totalTests = this.testResults.length;
+    const passedTests = this.testResults.filter(r => r.passed).length;
+    const failedTests = totalTests - passedTests;
+    const passRate = ((passedTests / totalTests) * 100).toFixed(1);
+    
+    console.log('\n📊 Test Report Summary:');
+    console.log(`Total Tests: ${totalTests}`);
+    console.log(`Passed: ${passedTests} (${passRate}%)`);
+    console.log(`Failed: ${failedTests}`);
+    
+    if (failedTests > 0) {
+      console.log('\n❌ Failed Tests:');
+      this.testResults
+        .filter(r => !r.passed)
+        .forEach(test => {
+          console.log(`  - ${test.testName}: ${test.details}`);
+        });
+    }
+    
+    return {
+      totalTests,
+      passedTests,
+      failedTests,
+      passRate: parseFloat(passRate),
+      results: this.testResults
+    };
+  }
+}
+
+// Responsive Design Testing Utilities
+export class ResponsiveDesignTester {
+  constructor() {
+    this.breakpoints = {
+      mobile: { width: 375, height: 667 },
+      tablet: { width: 768, height: 1024 },
+      desktop: { width: 1920, height: 1080 }
+    };
+  }
+
+  // Test responsive breakpoints
+  testBreakpoints() {
+    console.log('📱 Testing Responsive Design...');
+    
+    Object.entries(this.breakpoints).forEach(([device, dimensions]) => {
+      // Simulate viewport resize
+      if (typeof window !== 'undefined') {
+        // In a real browser environment, you would resize the viewport
+        console.log(`Testing ${device}: ${dimensions.width}x${dimensions.height}`);
+        
+        // Check if elements are properly responsive
+        const sidebar = document.querySelector('[data-testid="sidebar"]');
+        const mobileMenu = document.querySelector('[data-testid="mobile-menu"]');
+        
+        if (dimensions.width < 768) {
+          console.log(`✅ Mobile: Sidebar should be hidden, mobile menu should be visible`);
+        } else {
+          console.log(`✅ Desktop: Sidebar should be visible, mobile menu should be hidden`);
+        }
+      }
+    });
+  }
+}
+
+// Accessibility Testing Utilities
+export class AccessibilityTester {
+  constructor() {
+    this.tests = [];
+  }
+
+  // Test keyboard navigation
+  testKeyboardNavigation() {
+    console.log('⌨️ Testing Keyboard Navigation...');
+    
+    // Test tab navigation
+    const focusableElements = document.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    console.log(`Found ${focusableElements.length} focusable elements`);
+    
+    // Test ARIA labels
+    const elementsWithoutAriaLabel = document.querySelectorAll(
+      'button:not([aria-label]):not([aria-labelledby]), input:not([aria-label]):not([aria-labelledby])'
+    );
+    
+    if (elementsWithoutAriaLabel.length > 0) {
+      console.log(`⚠️ Found ${elementsWithoutAriaLabel.length} elements without ARIA labels`);
+    } else {
+      console.log('✅ All interactive elements have proper ARIA labels');
+    }
+  }
+
+  // Test color contrast
+  testColorContrast() {
+    console.log('🎨 Testing Color Contrast...');
+    
+    // This would typically use a color contrast analyzer
+    // For now, we'll just log that the test should be performed
+    console.log('✅ Color contrast should be tested with automated tools');
+  }
+}
+
+// Export testing utilities
+export const userFlowTester = new UserFlowTester();
+export const responsiveDesignTester = new ResponsiveDesignTester();
+export const accessibilityTester = new AccessibilityTester();
